@@ -1,0 +1,7 @@
+<appName "Foo">
+<hello """
+  Welcome, 
+  <a>{{user.name}}</a>,
+  to
+  <a>{{appName}}</a>.
+""">

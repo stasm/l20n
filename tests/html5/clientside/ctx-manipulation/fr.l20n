@@ -1,0 +1,6 @@
+<appName "Foo">
+<hello """
+  Bienvenue dans 
+  <a l10n-path="a[2]">{{appName}}</a>,
+  <a l10n-path="a[1]">{{user.name}}</a>.
+""">

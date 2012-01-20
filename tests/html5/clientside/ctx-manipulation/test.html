@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <script type="text/javascript;version=1.8" src="/l20n/js/l20n.js"></script>
+    <script type="text/javascript;version=1.8" src="/l20n/js/l20n-xml.js"></script>
+
+    <script type="application/l20n">
+    {
+        "user": {
+            "id": 1,
+            "name": "Joe"
+        }
+    }
+    </script>
+
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            var ctx = document.l10nCtx;
+            ctx.data.user.name = 'Mary';
+            ctx.data.appName = 'Bar';
+            ctx.onReady = function() {
+            }
+        });
+    </script>
+
+    <link href="./en-US.j20n" type="intl/l20n" />
+  </head>
+  <body>
+      <p l10n-id="hello" title="A paragraph">
+          Welcome, 
+          <a href="/me" class="foo" title="Your profile">{{user.name}}</a>,
+          to
+          <a href="/about" id="bar">{{appName}}</a>.
+      </p>
+      <p l10n-id="bye">
+          Good bye.
+      </p>
+  </body>
+</html>
+

@@ -1,0 +1,9 @@
+this.appName = "Foo";
+
+this.hello = function (env, sys) {
+    return "\
+  Bienvenue dans \
+  <a l10n-path=\"a[2]\">" + (sys.getent(env, sys, "appName") + ("</a>,\
+  <a l10n-path=\"a[1]\">" + (sys.getent(env, sys, "user", ["name"]) + "</a>.\
+")));
+};

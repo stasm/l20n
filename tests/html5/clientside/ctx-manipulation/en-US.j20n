@@ -1,0 +1,10 @@
+this.appName = "Foo";
+
+this.hello = function (env, sys) {
+    return "\
+  Welcome, \
+  <a>" + (sys.getent(env, sys, "user", ["name"]) + ("</a>,\
+  to\
+  <a>" + (sys.getent(env, sys, "appName") + "</a>.\
+")));
+};

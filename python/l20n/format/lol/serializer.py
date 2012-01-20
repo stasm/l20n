@@ -1,6 +1,8 @@
-from l20n.format.lol import ast
 import sys
 import re
+from textwrap import dedent
+
+from l20n.format.lol import ast
 
 if sys.version >= "3":
     basestring = str
@@ -9,6 +11,8 @@ def is_string(string):
     return isinstance(string, basestring)
 
 pattern = re.compile("([A-Z])")
+unescaped_quote = re.compile(r'(?<!\\)"')
+
 def obj2methodname(obj):
     cname = obj.__class__.__name__
     chunks = pattern.split(cname)
@@ -45,20 +49,27 @@ class Serializer():
     @classmethod
     def dump_entity(cls, entity):
         index = "[%(index)s]" % entity if entity.index else ""
-        attrs = ""
-        value = " %(value)s" % entity if entity.value else ""
-        return "<%(id)s%(index)s%(value)s%(attrs)s>" % {'id': entity.id,
-                                                        'index': index,
-                                                        'value': value,
-                                                        'attrs': attrs}
+        attrs = cls.dump_attrs(entity.attrs)
+        value = cls.dump_value(entity.value)
+        template = "<%(id)s%(index)s%(value)s%(attrs)s>"
+        return template % {'id': entity.id,
+                           'index': index,
+                           'value': value,
+                           'attrs': attrs}
 
     @classmethod
-    def dump_identifier(cls, i):
-        return i.name
+    def dump_value(cls, value):
+        if not value:
+            return " "
+        quote = '"""' if unescaped_quote.search(value) else '"'
+        value = dedent(value)
+        valuelines = map(lambda p: '  %s' % p, value.splitlines())
+        return ' %s%s\n%s' % (quote, '\n'.join(valuelines), quote)
 
     @classmethod
-    def dump_string(cls, e):
-        return '"%(content)s"' % e
+    def dump_attrs(cls, attrs):
+        attrs = map(lambda a: '\n  %s: "%s"' % a, attrs)
+        return ''.join(attrs)
 
     @classmethod
     def dump_comment(cls, comment):
