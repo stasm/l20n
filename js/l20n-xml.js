@@ -8,14 +8,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
   var links = headNode.getElementsByTagName('link')
   for (var i = 0; i < links.length; i++) {
-    continue;
     if (links[i].getAttribute('type') == 'intl/l20n')
       ctx.addResource(links[i].getAttribute('href'))
   }
 
   var scriptNodes = headNode.getElementsByTagName('script')
   for (var i=0;i<scriptNodes.length;i++) {
-    continue;
     if (scriptNodes[i].getAttribute('type')=='application/l20n') {
       var contextData = JSON.parse(scriptNodes[i].textContent);
       ctx.data = contextData;
@@ -47,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function() {
     return ctx;
   });
 
-  //ctx.freeze();
+  ctx.freeze();
 });
 
 function getPathTo(element, context) {

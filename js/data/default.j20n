@@ -4,7 +4,3 @@ this.DEFAULT = {
     return cur.getHours();
   },
 }
-
-this.name = "Imię";
-this.phone = "Nr telefonu";
-this.address = "Adres"

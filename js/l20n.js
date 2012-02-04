@@ -4,15 +4,6 @@ var L20n = {
   }
 }
 
-L20n.Resource = function(aURI) {
-  this.uri = aURI;
-}
-
-L20n.Resource.prototype = {
-  _loading: true,
-  uri: null,
-}
-
 L20n.Context = function() {
   var self = this;
   this.callbacks = {};
@@ -33,8 +24,12 @@ L20n.Context.prototype = {
     this.postMessage('get', id);
     this.callbacks[id] = callback;
   },
+  addResource: function(uri) {
+    this.postMessage('addResource', uri);
+  },
   getAttributes: function(id, args) {
   },
   freeze: function() {
+    this.postMessage('freeze');
   },
 }
