@@ -5,3 +5,6 @@ this.DEFAULT = {
   },
 }
 
+this.name = "Imię";
+this.phone = "Nr telefonu";
+this.address = "Adres"

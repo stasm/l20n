@@ -8,23 +8,23 @@ document.addEventListener("DOMContentLoaded", function() {
 
   var links = headNode.getElementsByTagName('link')
   for (var i = 0; i < links.length; i++) {
+    continue;
     if (links[i].getAttribute('type') == 'intl/l20n')
       ctx.addResource(links[i].getAttribute('href'))
   }
 
   var scriptNodes = headNode.getElementsByTagName('script')
   for (var i=0;i<scriptNodes.length;i++) {
+    continue;
     if (scriptNodes[i].getAttribute('type')=='application/l20n') {
       var contextData = JSON.parse(scriptNodes[i].textContent);
       ctx.data = contextData;
     }
   }
 
-  ctx.onReady = function() {
-    var nodes = document.querySelectorAll('[l10n-id]');
-    for (var i = 0, node; node = nodes[i]; i++) {
-      localizeNode(ctx, node);
-    }
+  var nodes = document.querySelectorAll('[l10n-id]');
+  for (var i = 0, node; node = nodes[i]; i++) {
+    localizeNode(ctx, node);
   }
 
   HTMLElement.prototype.retranslate = function() {
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
     return ctx;
   });
 
-  ctx.freeze();
+  //ctx.freeze();
 });
 
 function getPathTo(element, context) {
@@ -106,42 +106,44 @@ function localizeNode(ctx, node) {
         node.setAttribute(j, attrs[j]);
     }
   }
-  var valueFromCtx = ctx.get(l10nId, args);
-  if (valueFromCtx === null)
-    return;
+  ctx.get(l10nId, function(valueFromCtx) {
+    if (valueFromCtx === null)
+      return;
+    // deep-copy the original node
+    var origNode = node.cloneNode(true);
+    node.innerHTML = valueFromCtx;
 
-  // deep-copy the original node
-  var origNode = node.cloneNode(true);
-  node.innerHTML = valueFromCtx;
+    // overlay the attributes of descendant nodes
+    var children = node.getElementsByTagName('*');
+    for (var i = 0, child; child = children[i]; i++) {
+      // Match the child node with the equivalent node in origNode.
+      // The tricky part is that the node in origNode might have been 
+      // translated before; if so and if it had been reordered via 
+      // `l10n-path`, it's likely that even though the path points to it, it 
+      // actually _isn't_ the right node.
+      var path = child.getAttribute('l10n-path');
+      if (!path) {
+        path = getPathTo(child, node);
+      }
+      var origChild = getElementByPath(path, origNode);
+      // If the origChild already has `l10n-path`, it's likely that it has
+      // already been translated once.  Follow its `l10n-path` again to find 
+      // the true source equivalent in origNode.
+      var origChildPath = origChild && origChild.getAttribute('l10n-path');
+      if (origChildPath) {
+        origChild = getElementByPath(origChildPath, origNode);
+      }
+      if (!origChild) {
+        continue;
+      }
 
-  // overlay the attributes of descendant nodes
-  var children = node.getElementsByTagName('*');
-  for (var i = 0, child; child = children[i]; i++) {
-    // Match the child node with the equivalent node in origNode.
-    // The tricky part is that the node in origNode might have been 
-    // translated before; if so and if it had been reordered via 
-    // `l10n-path`, it's likely that even though the path points to it, it 
-    // actually _isn't_ the right node.
-    var path = child.getAttribute('l10n-path');
-    if (!path) {
-      path = getPathTo(child, node);
-    }
-    var origChild = getElementByPath(path, origNode);
-    // If the origChild already has `l10n-path`, it's likely that it has
-    // already been translated once.  Follow its `l10n-path` again to find 
-    // the true source equivalent in origNode.
-    var origChildPath = origChild && origChild.getAttribute('l10n-path');
-    if (origChildPath) {
-      origChild = getElementByPath(origChildPath, origNode);
-    }
-    if (!origChild) {
-      continue;
-    }
-
-    for (var k = 0, origAttr; origAttr = origChild.attributes[k]; k++) {
-      if (!child.hasAttribute(origAttr.name)) {
-        child.setAttribute(origAttr.nodeName, origAttr.value);
+      for (var k = 0, origAttr; origAttr = origChild.attributes[k]; k++) {
+        if (!child.hasAttribute(origAttr.name)) {
+          child.setAttribute(origAttr.nodeName, origAttr.value);
+        }
       }
     }
-  }
+  });
+
+
 }
